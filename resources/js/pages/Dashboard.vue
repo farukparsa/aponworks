@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 
 defineOptions({
     layout: {
@@ -11,6 +11,9 @@ defineOptions({
         ],
     },
 });
+
+const page = usePage();
+const user = page.props.auth.user;
 </script>
 
 <template>
@@ -21,8 +24,12 @@ defineOptions({
             <!-- Left Sidebar -->
             <aside class="hidden rounded-3xl bg-white p-5 shadow-sm lg:block">
                 <div class="mb-8">
-                    <h1 class="text-2xl font-bold text-slate-900">APONWORKS</h1>
-                    <p class="mt-1 text-sm text-slate-500">Your Personal AI Secretary</p>
+                    <h1 class="text-2xl font-bold text-slate-900">
+                        APONWORKS
+                    </h1>
+                    <p class="mt-1 text-sm text-slate-500">
+                        Your Personal AI Secretary
+                    </p>
                 </div>
 
                 <nav class="space-y-2 text-sm">
@@ -32,18 +39,21 @@ defineOptions({
                     >
                         Home
                     </a>
+
                     <a
                         href="#"
                         class="block rounded-xl px-4 py-3 text-slate-600 hover:bg-slate-100"
                     >
                         Memories
                     </a>
+
                     <a
                         href="#"
                         class="block rounded-xl px-4 py-3 text-slate-600 hover:bg-slate-100"
                     >
                         Documents
                     </a>
+
                     <a
                         href="#"
                         class="block rounded-xl px-4 py-3 text-slate-600 hover:bg-slate-100"
@@ -53,15 +63,28 @@ defineOptions({
                 </nav>
 
                 <div class="mt-10 rounded-2xl bg-slate-100 p-4">
-                    <p class="text-xs font-medium text-slate-500">Storage Used</p>
-                    <p class="mt-2 text-sm font-semibold text-slate-800">0 MB</p>
+                    <p class="text-xs font-medium text-slate-500">
+                        Storage Used
+                    </p>
+
+                    <p class="mt-2 text-sm font-semibold text-slate-800">
+                        0 MB
+                    </p>
+
                     <div class="mt-3 h-2 rounded-full bg-slate-200">
-                        <div class="h-2 w-[8%] rounded-full bg-slate-700"></div>
+                        <div
+                            class="h-2 w-[8%] rounded-full bg-slate-700"
+                        ></div>
                     </div>
                 </div>
 
-                <div class="mt-4 rounded-2xl border border-dashed border-slate-200 p-4">
-                    <p class="text-xs text-slate-400">Sponsored</p>
+                <div
+                    class="mt-4 rounded-2xl border border-dashed border-slate-200 p-4"
+                >
+                    <p class="text-xs text-slate-400">
+                        Sponsored
+                    </p>
+
                     <p class="mt-2 text-sm text-slate-600">
                         Future advertisement space
                     </p>
@@ -70,6 +93,7 @@ defineOptions({
 
             <!-- Main Content -->
             <main class="min-w-0">
+                <!-- Ask APON -->
                 <div class="mb-6">
                     <input
                         type="text"
@@ -78,15 +102,18 @@ defineOptions({
                     />
                 </div>
 
+                <!-- Greeting -->
                 <div class="mb-6">
                     <h2 class="text-2xl font-bold text-slate-900">
-                        Good morning, John!
+                        Good morning, {{ user?.name || 'there' }}!
                     </h2>
+
                     <p class="mt-1 text-sm text-slate-500">
                         What would you like APON to remember today?
                     </p>
                 </div>
 
+                <!-- Diary / Task / Note -->
                 <section class="mb-6 rounded-3xl bg-white p-5 shadow-sm">
                     <textarea
                         rows="5"
@@ -103,16 +130,19 @@ defineOptions({
                             >
                                 Note
                             </button>
+
                             <button
                                 class="rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-600 hover:bg-slate-200"
                             >
                                 File
                             </button>
+
                             <button
                                 class="rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-600 hover:bg-slate-200"
                             >
                                 Photo
                             </button>
+
                             <button
                                 class="rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-600 hover:bg-slate-200"
                             >
@@ -128,16 +158,23 @@ defineOptions({
                     </div>
                 </section>
 
+                <!-- Schedule -->
                 <div class="grid gap-4 sm:grid-cols-2">
                     <section class="rounded-3xl bg-white p-5 shadow-sm">
-                        <p class="text-sm font-semibold text-slate-900">Today</p>
+                        <p class="text-sm font-semibold text-slate-900">
+                            Today
+                        </p>
+
                         <p class="mt-2 text-sm text-slate-500">
                             Nothing scheduled yet.
                         </p>
                     </section>
 
                     <section class="rounded-3xl bg-white p-5 shadow-sm">
-                        <p class="text-sm font-semibold text-slate-900">Tomorrow</p>
+                        <p class="text-sm font-semibold text-slate-900">
+                            Tomorrow
+                        </p>
+
                         <p class="mt-2 text-sm text-slate-500">
                             Nothing scheduled yet.
                         </p>
@@ -147,13 +184,17 @@ defineOptions({
                         <p class="text-sm font-semibold text-slate-900">
                             Day After Tomorrow
                         </p>
+
                         <p class="mt-2 text-sm text-slate-500">
                             Nothing scheduled yet.
                         </p>
                     </section>
 
                     <section class="rounded-3xl bg-white p-5 shadow-sm">
-                        <p class="text-sm font-semibold text-slate-900">Upcoming</p>
+                        <p class="text-sm font-semibold text-slate-900">
+                            Upcoming
+                        </p>
+
                         <p class="mt-2 text-sm text-slate-500">
                             No upcoming items.
                         </p>
@@ -167,9 +208,10 @@ defineOptions({
                     <p class="text-sm font-semibold text-slate-900">
                         Anything I should know?
                     </p>
+
                     <p class="mt-3 text-sm leading-6 text-slate-500">
-                        APON will show important reminders, open loops and useful
-                        insights here.
+                        APON will show important reminders, open loops and
+                        useful insights here.
                     </p>
                 </section>
 
@@ -177,6 +219,7 @@ defineOptions({
                     <p class="text-sm font-semibold text-slate-900">
                         Recent Memories
                     </p>
+
                     <p class="mt-3 text-sm text-slate-500">
                         Your recent saved memories will appear here.
                     </p>
@@ -185,7 +228,10 @@ defineOptions({
                 <section
                     class="rounded-3xl border border-dashed border-slate-200 bg-white p-5"
                 >
-                    <p class="text-xs text-slate-400">Sponsored</p>
+                    <p class="text-xs text-slate-400">
+                        Sponsored
+                    </p>
+
                     <p class="mt-2 text-sm text-slate-500">
                         Future relevant offer space
                     </p>
