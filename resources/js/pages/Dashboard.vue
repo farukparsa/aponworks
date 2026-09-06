@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 
 import {
     DropdownMenu,
@@ -44,6 +44,24 @@ const greeting = computed(() => {
 
 const handleLogout = () => {
     router.flushAll();
+};
+
+const memoryForm = useForm({
+    type: 'note',
+    description: '',
+});
+
+const selectMemoryType = (type: 'note' | 'task' | 'diary') => {
+    memoryForm.type = type;
+};
+
+const saveMemory = () => {
+    memoryForm.post('/memories', {
+        preserveScroll: true,
+        onSuccess: () => {
+            memoryForm.reset('description');
+        },
+    });
 };
 </script>
 
@@ -265,52 +283,115 @@ const handleLogout = () => {
                 <section
                     class="mb-6 rounded-3xl bg-white p-5 shadow-sm"
                 >
-                    <textarea
-                        rows="5"
-                        placeholder="Write your Diary Here or Add Task and Notes ..."
-                        class="w-full resize-none border-0 bg-transparent text-base text-slate-800 outline-none placeholder:text-slate-400"
-                    ></textarea>
+                    <form @submit.prevent="saveMemory">
+                        <textarea
+                            v-model="memoryForm.description"
+                            rows="5"
+                            placeholder="Write your Diary Here or Add Task and Notes ..."
+                            class="w-full resize-none border-0 bg-transparent text-base text-slate-800 outline-none placeholder:text-slate-400"
+                        ></textarea>
 
-                    <div
-                        class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4"
-                    >
-                        <div class="flex flex-wrap gap-2">
-                            <button
-                                type="button"
-                                class="rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-600 hover:bg-slate-200"
-                            >
-                                📝 Note
-                            </button>
+                        <p
+                            v-if="memoryForm.errors.description"
+                            class="mt-2 text-sm text-red-600"
+                        >
+                            {{ memoryForm.errors.description }}
+                        </p>
+
+                        <p
+                            v-if="memoryForm.recentlySuccessful"
+                            class="mt-2 text-sm font-medium text-green-700"
+                        >
+                            ✓ Saved to APONWORKS
+                        </p>
+
+                        <div
+                            class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4"
+                        >
+                            <div class="flex flex-wrap gap-2">
+                                <!-- NOTE -->
+                                <button
+                                    type="button"
+                                    @click="selectMemoryType('note')"
+                                    :class="[
+                                        'rounded-xl px-3 py-2 text-sm transition',
+                                        memoryForm.type === 'note'
+                                            ? 'bg-slate-900 text-white'
+                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+                                    ]"
+                                >
+                                    📝 Note
+                                </button>
+
+                                <!-- TASK -->
+                                <button
+                                    type="button"
+                                    @click="selectMemoryType('task')"
+                                    :class="[
+                                        'rounded-xl px-3 py-2 text-sm transition',
+                                        memoryForm.type === 'task'
+                                            ? 'bg-slate-900 text-white'
+                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+                                    ]"
+                                >
+                                    ✅ Task
+                                </button>
+
+                                <!-- DIARY -->
+                                <button
+                                    type="button"
+                                    @click="selectMemoryType('diary')"
+                                    :class="[
+                                        'rounded-xl px-3 py-2 text-sm transition',
+                                        memoryForm.type === 'diary'
+                                            ? 'bg-slate-900 text-white'
+                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+                                    ]"
+                                >
+                                    📖 Diary
+                                </button>
+
+                                <!-- FUTURE FILE -->
+                                <button
+                                    type="button"
+                                    class="rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-600 hover:bg-slate-200"
+                                >
+                                    📎 File
+                                </button>
+
+                                <!-- FUTURE PHOTO -->
+                                <button
+                                    type="button"
+                                    class="rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-600 hover:bg-slate-200"
+                                >
+                                    📷 Photo
+                                </button>
+
+                                <!-- FUTURE VOICE -->
+                                <button
+                                    type="button"
+                                    class="rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-600 hover:bg-slate-200"
+                                >
+                                    🎤 Voice
+                                </button>
+                            </div>
 
                             <button
-                                type="button"
-                                class="rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-600 hover:bg-slate-200"
+                                type="submit"
+                                :disabled="
+                                    memoryForm.processing ||
+                                    !memoryForm.description.trim()
+                                "
+                                class="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                📎 File
-                            </button>
-
-                            <button
-                                type="button"
-                                class="rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-600 hover:bg-slate-200"
-                            >
-                                📷 Photo
-                            </button>
-
-                            <button
-                                type="button"
-                                class="rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-600 hover:bg-slate-200"
-                            >
-                                🎤 Voice
+                                {{
+                                    memoryForm.processing
+                                        ? 'Saving...'
+                                        : 'Save'
+                                }}
                             </button>
                         </div>
-
-                        <button
-                            type="button"
-                            class="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
-                        >
-                            Save
-                        </button>
-                    </div>
+                    </form>
                 </section>
 
                 <!-- SCHEDULE -->
