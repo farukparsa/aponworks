@@ -1,6 +1,18 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
+
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+import { logout } from '@/routes';
+import { edit } from '@/routes/profile';
 
 defineOptions({
     layout: {
@@ -29,15 +41,23 @@ const greeting = computed(() => {
 
     return 'Good evening';
 });
+
+const handleLogout = () => {
+    router.flushAll();
+};
 </script>
 
 <template>
     <Head title="APONWORKS" />
 
     <div class="min-h-screen bg-slate-50 p-4 md:p-6">
-        <div class="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[220px_1fr_300px]">
+        <div
+            class="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[220px_1fr_300px]"
+        >
             <!-- LEFT SIDEBAR -->
-            <aside class="hidden rounded-3xl bg-white p-5 shadow-sm lg:block">
+            <aside
+                class="hidden rounded-3xl bg-white p-5 shadow-sm lg:block"
+            >
                 <div class="mb-8">
                     <h1 class="text-2xl font-bold text-slate-900">
                         APONWORKS
@@ -78,7 +98,7 @@ const greeting = computed(() => {
                     </a>
                 </nav>
 
-                <!-- Storage -->
+                <!-- STORAGE -->
                 <div class="mt-10 rounded-2xl bg-slate-100 p-4">
                     <p class="text-xs font-medium text-slate-500">
                         Storage Used
@@ -95,7 +115,7 @@ const greeting = computed(() => {
                     </div>
                 </div>
 
-                <!-- Future Ad -->
+                <!-- FUTURE AD -->
                 <div
                     class="mt-4 rounded-2xl border border-dashed border-slate-200 p-4"
                 >
@@ -113,6 +133,7 @@ const greeting = computed(() => {
             <main class="min-w-0">
                 <!-- TOP BAR -->
                 <div class="mb-6 flex items-center gap-3">
+                    <!-- ASK APON -->
                     <div class="relative flex-1">
                         <input
                             type="text"
@@ -129,7 +150,7 @@ const greeting = computed(() => {
                         </button>
                     </div>
 
-                    <!-- Notifications -->
+                    <!-- NOTIFICATIONS -->
                     <button
                         type="button"
                         class="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-lg shadow-sm hover:bg-slate-100"
@@ -142,18 +163,91 @@ const greeting = computed(() => {
                         ></span>
                     </button>
 
-                    <!-- Profile -->
-                    <button
-                        type="button"
-                        class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-sm font-bold text-white shadow-sm"
-                        title="Profile"
-                    >
-                        {{
-                            user?.name
-                                ? user.name.charAt(0).toUpperCase()
-                                : 'U'
-                        }}
-                    </button>
+                    <!-- USER MENU -->
+                    <DropdownMenu>
+                        <DropdownMenuTrigger as-child>
+                            <button
+                                type="button"
+                                class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-sm font-bold text-white shadow-sm hover:bg-slate-800"
+                                title="Account"
+                            >
+                                {{
+                                    user?.name
+                                        ? user.name.charAt(0).toUpperCase()
+                                        : 'U'
+                                }}
+                            </button>
+                        </DropdownMenuTrigger>
+
+                        <DropdownMenuContent
+                            align="end"
+                            class="w-64 rounded-2xl p-2"
+                        >
+                            <!-- USER INFO -->
+                            <DropdownMenuLabel class="p-3 font-normal">
+                                <p
+                                    class="truncate text-sm font-semibold text-slate-900"
+                                >
+                                    {{ user?.name }}
+                                </p>
+
+                                <p
+                                    class="mt-1 truncate text-xs text-slate-500"
+                                >
+                                    {{ user?.email }}
+                                </p>
+                            </DropdownMenuLabel>
+
+                            <DropdownMenuSeparator />
+
+                            <!-- PROFILE / SETTINGS -->
+                            <DropdownMenuItem :as-child="true">
+                                <Link
+                                    :href="edit()"
+                                    class="w-full cursor-pointer rounded-xl px-3 py-2.5"
+                                >
+                                    <span class="mr-2">👤</span>
+                                    Profile & Settings
+                                </Link>
+                            </DropdownMenuItem>
+
+                            <!-- LANGUAGE -->
+                            <DropdownMenuItem
+                                class="cursor-pointer rounded-xl px-3 py-2.5"
+                            >
+                                <div
+                                    class="flex w-full items-center justify-between"
+                                >
+                                    <div>
+                                        <span class="mr-2">🌐</span>
+                                        Language
+                                    </div>
+
+                                    <span
+                                        class="text-xs text-slate-400"
+                                    >
+                                        English
+                                    </span>
+                                </div>
+                            </DropdownMenuItem>
+
+                            <DropdownMenuSeparator />
+
+                            <!-- LOGOUT -->
+                            <DropdownMenuItem :as-child="true">
+                                <Link
+                                    :href="logout()"
+                                    as="button"
+                                    data-test="logout-button"
+                                    @click="handleLogout"
+                                    class="w-full cursor-pointer rounded-xl px-3 py-2.5 text-left text-red-600"
+                                >
+                                    <span class="mr-2">↪</span>
+                                    Log out
+                                </Link>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
 
                 <!-- GREETING -->
@@ -168,7 +262,9 @@ const greeting = computed(() => {
                 </div>
 
                 <!-- DIARY / TASK / NOTE -->
-                <section class="mb-6 rounded-3xl bg-white p-5 shadow-sm">
+                <section
+                    class="mb-6 rounded-3xl bg-white p-5 shadow-sm"
+                >
                     <textarea
                         rows="5"
                         placeholder="Write your Diary Here or Add Task and Notes ..."
@@ -219,9 +315,14 @@ const greeting = computed(() => {
 
                 <!-- SCHEDULE -->
                 <div class="grid gap-4 sm:grid-cols-2">
-                    <section class="rounded-3xl bg-white p-5 shadow-sm">
+                    <!-- TODAY -->
+                    <section
+                        class="rounded-3xl bg-white p-5 shadow-sm"
+                    >
                         <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-slate-900">
+                            <p
+                                class="text-sm font-semibold text-slate-900"
+                            >
                                 Today
                             </p>
 
@@ -235,9 +336,14 @@ const greeting = computed(() => {
                         </p>
                     </section>
 
-                    <section class="rounded-3xl bg-white p-5 shadow-sm">
+                    <!-- TOMORROW -->
+                    <section
+                        class="rounded-3xl bg-white p-5 shadow-sm"
+                    >
                         <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-slate-900">
+                            <p
+                                class="text-sm font-semibold text-slate-900"
+                            >
                                 Tomorrow
                             </p>
 
@@ -251,9 +357,14 @@ const greeting = computed(() => {
                         </p>
                     </section>
 
-                    <section class="rounded-3xl bg-white p-5 shadow-sm">
+                    <!-- DAY AFTER TOMORROW -->
+                    <section
+                        class="rounded-3xl bg-white p-5 shadow-sm"
+                    >
                         <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-slate-900">
+                            <p
+                                class="text-sm font-semibold text-slate-900"
+                            >
                                 Day After Tomorrow
                             </p>
 
@@ -267,9 +378,14 @@ const greeting = computed(() => {
                         </p>
                     </section>
 
-                    <section class="rounded-3xl bg-white p-5 shadow-sm">
+                    <!-- UPCOMING -->
+                    <section
+                        class="rounded-3xl bg-white p-5 shadow-sm"
+                    >
                         <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-slate-900">
+                            <p
+                                class="text-sm font-semibold text-slate-900"
+                            >
                                 Upcoming
                             </p>
 
@@ -287,23 +403,35 @@ const greeting = computed(() => {
 
             <!-- RIGHT SIDEBAR -->
             <aside class="hidden space-y-6 lg:block">
-                <section class="rounded-3xl bg-white p-5 shadow-sm">
+                <!-- APON INSIGHTS -->
+                <section
+                    class="rounded-3xl bg-white p-5 shadow-sm"
+                >
                     <div class="flex items-center gap-2">
                         <span>✨</span>
 
-                        <p class="text-sm font-semibold text-slate-900">
+                        <p
+                            class="text-sm font-semibold text-slate-900"
+                        >
                             Anything I should know?
                         </p>
                     </div>
 
-                    <p class="mt-3 text-sm leading-6 text-slate-500">
-                        APON will show important reminders, open loops and
-                        useful insights here.
+                    <p
+                        class="mt-3 text-sm leading-6 text-slate-500"
+                    >
+                        APON will show important reminders, open loops
+                        and useful insights here.
                     </p>
                 </section>
 
-                <section class="rounded-3xl bg-white p-5 shadow-sm">
-                    <p class="text-sm font-semibold text-slate-900">
+                <!-- RECENT MEMORIES -->
+                <section
+                    class="rounded-3xl bg-white p-5 shadow-sm"
+                >
+                    <p
+                        class="text-sm font-semibold text-slate-900"
+                    >
                         Recent Memories
                     </p>
 
@@ -312,6 +440,7 @@ const greeting = computed(() => {
                     </p>
                 </section>
 
+                <!-- FUTURE AD -->
                 <section
                     class="rounded-3xl border border-dashed border-slate-200 bg-white p-5"
                 >
