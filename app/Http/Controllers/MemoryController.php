@@ -13,12 +13,14 @@ class MemoryController extends Controller
         $validated = $request->validate([
             'type' => ['required', 'in:note,task,diary'],
             'description' => ['required', 'string', 'max:10000'],
+            'due_at' => ['nullable', 'date'],
         ]);
 
         Memory::create([
             'user_id' => $request->user()->id,
             'type' => $validated['type'],
             'description' => $validated['description'],
+            'due_at' => $validated['due_at'] ?? null,
             'source_type' => 'manual',
             'status' => 'active',
             'user_confirmed' => true,

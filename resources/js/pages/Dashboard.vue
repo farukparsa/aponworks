@@ -25,12 +25,32 @@ defineOptions({
     },
 });
 
+type RecentMemory = {
+    id: number;
+    type: string;
+    title: string | null;
+    description: string;
+    created_at: string;
+};
+
+type ScheduledMemory = {
+    id: number;
+    type: string;
+    title: string | null;
+    description: string;
+    due_at: string;
+};
+
 const page = usePage();
 
 const user = page.props.auth.user;
 
-const recentMemories = computed(() => {
-    return page.props.recentMemories ?? [];
+const recentMemories = computed<RecentMemory[]>(() => {
+    return (page.props.recentMemories as RecentMemory[] | undefined) ?? [];
+});
+
+const todayMemories = computed<ScheduledMemory[]>(() => {
+    return (page.props.todayMemories as ScheduledMemory[] | undefined) ?? [];
 });
 
 const greeting = computed(() => {
@@ -54,6 +74,7 @@ const handleLogout = () => {
 const memoryForm = useForm({
     type: 'note',
     description: '',
+    due_at: '',
 });
 
 const selectMemoryType = (type: 'note' | 'task' | 'diary') => {
@@ -64,7 +85,7 @@ const saveMemory = () => {
     memoryForm.post('/memories', {
         preserveScroll: true,
         onSuccess: () => {
-            memoryForm.reset('description');
+            memoryForm.reset('description', 'due_at');
         },
     });
 };
@@ -206,7 +227,6 @@ const saveMemory = () => {
                             align="end"
                             class="w-64 rounded-2xl p-2"
                         >
-                            <!-- USER INFO -->
                             <DropdownMenuLabel class="p-3 font-normal">
                                 <p
                                     class="truncate text-sm font-semibold text-slate-900"
@@ -223,7 +243,6 @@ const saveMemory = () => {
 
                             <DropdownMenuSeparator />
 
-                            <!-- PROFILE / SETTINGS -->
                             <DropdownMenuItem :as-child="true">
                                 <Link
                                     :href="edit()"
@@ -234,7 +253,6 @@ const saveMemory = () => {
                                 </Link>
                             </DropdownMenuItem>
 
-                            <!-- LANGUAGE -->
                             <DropdownMenuItem
                                 class="cursor-pointer rounded-xl px-3 py-2.5"
                             >
@@ -254,7 +272,6 @@ const saveMemory = () => {
 
                             <DropdownMenuSeparator />
 
-                            <!-- LOGOUT -->
                             <DropdownMenuItem :as-child="true">
                                 <Link
                                     :href="logout()"
@@ -301,9 +318,36 @@ const saveMemory = () => {
                             {{ memoryForm.errors.description }}
                         </p>
 
+                        <!-- DUE DATE -->
+                        <div class="mt-4">
+                            <label
+                                for="memory-due-date"
+                                class="mb-2 block text-xs font-medium text-slate-500"
+                            >
+                                Due Date
+                                <span class="font-normal text-slate-400">
+                                    (optional)
+                                </span>
+                            </label>
+
+                            <input
+                                id="memory-due-date"
+                                v-model="memoryForm.due_at"
+                                type="date"
+                                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-slate-400 sm:w-auto"
+                            />
+
+                            <p
+                                v-if="memoryForm.errors.due_at"
+                                class="mt-2 text-sm text-red-600"
+                            >
+                                {{ memoryForm.errors.due_at }}
+                            </p>
+                        </div>
+
                         <p
                             v-if="memoryForm.recentlySuccessful"
-                            class="mt-2 text-sm font-medium text-green-700"
+                            class="mt-3 text-sm font-medium text-green-700"
                         >
                             ✓ Saved to APONWORKS
                         </p>
@@ -312,7 +356,6 @@ const saveMemory = () => {
                             class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4"
                         >
                             <div class="flex flex-wrap gap-2">
-                                <!-- NOTE -->
                                 <button
                                     type="button"
                                     @click="selectMemoryType('note')"
@@ -326,7 +369,6 @@ const saveMemory = () => {
                                     📝 Note
                                 </button>
 
-                                <!-- TASK -->
                                 <button
                                     type="button"
                                     @click="selectMemoryType('task')"
@@ -340,7 +382,6 @@ const saveMemory = () => {
                                     ✅ Task
                                 </button>
 
-                                <!-- DIARY -->
                                 <button
                                     type="button"
                                     @click="selectMemoryType('diary')"
@@ -354,7 +395,6 @@ const saveMemory = () => {
                                     📖 Diary
                                 </button>
 
-                                <!-- FUTURE FILE -->
                                 <button
                                     type="button"
                                     class="rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-600 hover:bg-slate-200"
@@ -362,7 +402,6 @@ const saveMemory = () => {
                                     📎 File
                                 </button>
 
-                                <!-- FUTURE PHOTO -->
                                 <button
                                     type="button"
                                     class="rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-600 hover:bg-slate-200"
@@ -370,7 +409,6 @@ const saveMemory = () => {
                                     📷 Photo
                                 </button>
 
-                                <!-- FUTURE VOICE -->
                                 <button
                                     type="button"
                                     class="rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-600 hover:bg-slate-200"
@@ -409,11 +447,44 @@ const saveMemory = () => {
                             </p>
 
                             <span class="text-xs text-slate-400">
-                                0 items
+                                {{ todayMemories.length }}
+                                {{
+                                    todayMemories.length === 1
+                                        ? 'item'
+                                        : 'items'
+                                }}
                             </span>
                         </div>
 
-                        <p class="mt-3 text-sm text-slate-500">
+                        <div
+                            v-if="todayMemories.length"
+                            class="mt-4 space-y-3"
+                        >
+                            <div
+                                v-for="memory in todayMemories"
+                                :key="memory.id"
+                                class="rounded-2xl bg-slate-50 p-3"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <span
+                                        class="text-xs font-medium uppercase tracking-wide text-slate-400"
+                                    >
+                                        {{ memory.type }}
+                                    </span>
+                                </div>
+
+                                <p
+                                    class="mt-2 text-sm leading-5 text-slate-700"
+                                >
+                                    {{ memory.description }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <p
+                            v-else
+                            class="mt-3 text-sm text-slate-500"
+                        >
                             Nothing scheduled yet.
                         </p>
                     </section>
