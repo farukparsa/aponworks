@@ -26,7 +26,12 @@ defineOptions({
 });
 
 const page = usePage();
+
 const user = page.props.auth.user;
+
+const recentMemories = computed(() => {
+    return page.props.recentMemories ?? [];
+});
 
 const greeting = computed(() => {
     const hour = new Date().getHours();
@@ -241,9 +246,7 @@ const saveMemory = () => {
                                         Language
                                     </div>
 
-                                    <span
-                                        class="text-xs text-slate-400"
-                                    >
+                                    <span class="text-xs text-slate-400">
                                         English
                                     </span>
                                 </div>
@@ -401,9 +404,7 @@ const saveMemory = () => {
                         class="rounded-3xl bg-white p-5 shadow-sm"
                     >
                         <div class="flex items-center justify-between">
-                            <p
-                                class="text-sm font-semibold text-slate-900"
-                            >
+                            <p class="text-sm font-semibold text-slate-900">
                                 Today
                             </p>
 
@@ -422,9 +423,7 @@ const saveMemory = () => {
                         class="rounded-3xl bg-white p-5 shadow-sm"
                     >
                         <div class="flex items-center justify-between">
-                            <p
-                                class="text-sm font-semibold text-slate-900"
-                            >
+                            <p class="text-sm font-semibold text-slate-900">
                                 Tomorrow
                             </p>
 
@@ -443,9 +442,7 @@ const saveMemory = () => {
                         class="rounded-3xl bg-white p-5 shadow-sm"
                     >
                         <div class="flex items-center justify-between">
-                            <p
-                                class="text-sm font-semibold text-slate-900"
-                            >
+                            <p class="text-sm font-semibold text-slate-900">
                                 Day After Tomorrow
                             </p>
 
@@ -464,9 +461,7 @@ const saveMemory = () => {
                         class="rounded-3xl bg-white p-5 shadow-sm"
                     >
                         <div class="flex items-center justify-between">
-                            <p
-                                class="text-sm font-semibold text-slate-900"
-                            >
+                            <p class="text-sm font-semibold text-slate-900">
                                 Upcoming
                             </p>
 
@@ -491,9 +486,7 @@ const saveMemory = () => {
                     <div class="flex items-center gap-2">
                         <span>✨</span>
 
-                        <p
-                            class="text-sm font-semibold text-slate-900"
-                        >
+                        <p class="text-sm font-semibold text-slate-900">
                             Anything I should know?
                         </p>
                     </div>
@@ -510,14 +503,50 @@ const saveMemory = () => {
                 <section
                     class="rounded-3xl bg-white p-5 shadow-sm"
                 >
-                    <p
-                        class="text-sm font-semibold text-slate-900"
-                    >
+                    <p class="text-sm font-semibold text-slate-900">
                         Recent Memories
                     </p>
 
-                    <p class="mt-3 text-sm text-slate-500">
-                        Your recent saved memories will appear here.
+                    <div
+                        v-if="recentMemories.length"
+                        class="mt-4 space-y-3"
+                    >
+                        <div
+                            v-for="memory in recentMemories"
+                            :key="memory.id"
+                            class="rounded-2xl bg-slate-50 p-3"
+                        >
+                            <div
+                                class="flex items-center justify-between gap-3"
+                            >
+                                <span
+                                    class="text-xs font-medium uppercase tracking-wide text-slate-400"
+                                >
+                                    {{ memory.type }}
+                                </span>
+
+                                <span class="text-xs text-slate-400">
+                                    {{
+                                        new Date(
+                                            memory.created_at,
+                                        ).toLocaleDateString()
+                                    }}
+                                </span>
+                            </div>
+
+                            <p
+                                class="mt-2 line-clamp-3 text-sm leading-5 text-slate-700"
+                            >
+                                {{ memory.description }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <p
+                        v-else
+                        class="mt-3 text-sm text-slate-500"
+                    >
+                        No memories saved yet.
                     </p>
                 </section>
 
