@@ -28,4 +28,15 @@ class MemoryController extends Controller
 
         return back()->with('success', 'Memory saved successfully.');
     }
+
+    public function complete(Request $request, Memory $memory): RedirectResponse
+    {
+        abort_unless($memory->user_id === $request->user()->id, 403);
+
+        $memory->update([
+            'status' => 'completed',
+        ]);
+
+        return back()->with('success', 'Task completed.');
+    }
 }

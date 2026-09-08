@@ -12,6 +12,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('memories', [MemoryController::class, 'store'])
         ->name('memories.store');
+
+    Route::patch('memories/{memory}/complete', [MemoryController::class, 'complete'])
+        ->name('memories.complete');
 });
 
 require __DIR__.'/settings.php';
