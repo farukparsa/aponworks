@@ -53,6 +53,22 @@ const todayMemories = computed<ScheduledMemory[]>(() => {
     return (page.props.todayMemories as ScheduledMemory[] | undefined) ?? [];
 });
 
+const tomorrowMemories = computed<ScheduledMemory[]>(() => {
+    return (page.props.tomorrowMemories as ScheduledMemory[] | undefined) ?? [];
+});
+
+const dayAfterTomorrowMemories = computed<ScheduledMemory[]>(() => {
+    return (
+        (page.props.dayAfterTomorrowMemories as
+            | ScheduledMemory[]
+            | undefined) ?? []
+    );
+});
+
+const upcomingMemories = computed<ScheduledMemory[]>(() => {
+    return (page.props.upcomingMemories as ScheduledMemory[] | undefined) ?? [];
+});
+
 const greeting = computed(() => {
     const hour = new Date().getHours();
 
@@ -99,9 +115,7 @@ const saveMemory = () => {
             class="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[220px_1fr_300px]"
         >
             <!-- LEFT SIDEBAR -->
-            <aside
-                class="hidden rounded-3xl bg-white p-5 shadow-sm lg:block"
-            >
+            <aside class="hidden rounded-3xl bg-white p-5 shadow-sm lg:block">
                 <div class="mb-8">
                     <h1 class="text-2xl font-bold text-slate-900">
                         APONWORKS
@@ -177,7 +191,6 @@ const saveMemory = () => {
             <main class="min-w-0">
                 <!-- TOP BAR -->
                 <div class="mb-6 flex items-center gap-3">
-                    <!-- ASK APON -->
                     <div class="relative flex-1">
                         <input
                             type="text"
@@ -299,10 +312,8 @@ const saveMemory = () => {
                     </p>
                 </div>
 
-                <!-- DIARY / TASK / NOTE -->
-                <section
-                    class="mb-6 rounded-3xl bg-white p-5 shadow-sm"
-                >
+                <!-- MEMORY FORM -->
+                <section class="mb-6 rounded-3xl bg-white p-5 shadow-sm">
                     <form @submit.prevent="saveMemory">
                         <textarea
                             v-model="memoryForm.description"
@@ -438,9 +449,7 @@ const saveMemory = () => {
                 <!-- SCHEDULE -->
                 <div class="grid gap-4 sm:grid-cols-2">
                     <!-- TODAY -->
-                    <section
-                        class="rounded-3xl bg-white p-5 shadow-sm"
-                    >
+                    <section class="rounded-3xl bg-white p-5 shadow-sm">
                         <div class="flex items-center justify-between">
                             <p class="text-sm font-semibold text-slate-900">
                                 Today
@@ -465,17 +474,13 @@ const saveMemory = () => {
                                 :key="memory.id"
                                 class="rounded-2xl bg-slate-50 p-3"
                             >
-                                <div class="flex items-center gap-2">
-                                    <span
-                                        class="text-xs font-medium uppercase tracking-wide text-slate-400"
-                                    >
-                                        {{ memory.type }}
-                                    </span>
-                                </div>
-
-                                <p
-                                    class="mt-2 text-sm leading-5 text-slate-700"
+                                <span
+                                    class="text-xs font-medium uppercase tracking-wide text-slate-400"
                                 >
+                                    {{ memory.type }}
+                                </span>
+
+                                <p class="mt-2 text-sm leading-5 text-slate-700">
                                     {{ memory.description }}
                                 </p>
                             </div>
@@ -490,58 +495,151 @@ const saveMemory = () => {
                     </section>
 
                     <!-- TOMORROW -->
-                    <section
-                        class="rounded-3xl bg-white p-5 shadow-sm"
-                    >
+                    <section class="rounded-3xl bg-white p-5 shadow-sm">
                         <div class="flex items-center justify-between">
                             <p class="text-sm font-semibold text-slate-900">
                                 Tomorrow
                             </p>
 
                             <span class="text-xs text-slate-400">
-                                0 items
+                                {{ tomorrowMemories.length }}
+                                {{
+                                    tomorrowMemories.length === 1
+                                        ? 'item'
+                                        : 'items'
+                                }}
                             </span>
                         </div>
 
-                        <p class="mt-3 text-sm text-slate-500">
+                        <div
+                            v-if="tomorrowMemories.length"
+                            class="mt-4 space-y-3"
+                        >
+                            <div
+                                v-for="memory in tomorrowMemories"
+                                :key="memory.id"
+                                class="rounded-2xl bg-slate-50 p-3"
+                            >
+                                <span
+                                    class="text-xs font-medium uppercase tracking-wide text-slate-400"
+                                >
+                                    {{ memory.type }}
+                                </span>
+
+                                <p class="mt-2 text-sm leading-5 text-slate-700">
+                                    {{ memory.description }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <p
+                            v-else
+                            class="mt-3 text-sm text-slate-500"
+                        >
                             Nothing scheduled yet.
                         </p>
                     </section>
 
                     <!-- DAY AFTER TOMORROW -->
-                    <section
-                        class="rounded-3xl bg-white p-5 shadow-sm"
-                    >
+                    <section class="rounded-3xl bg-white p-5 shadow-sm">
                         <div class="flex items-center justify-between">
                             <p class="text-sm font-semibold text-slate-900">
                                 Day After Tomorrow
                             </p>
 
                             <span class="text-xs text-slate-400">
-                                0 items
+                                {{ dayAfterTomorrowMemories.length }}
+                                {{
+                                    dayAfterTomorrowMemories.length === 1
+                                        ? 'item'
+                                        : 'items'
+                                }}
                             </span>
                         </div>
 
-                        <p class="mt-3 text-sm text-slate-500">
+                        <div
+                            v-if="dayAfterTomorrowMemories.length"
+                            class="mt-4 space-y-3"
+                        >
+                            <div
+                                v-for="memory in dayAfterTomorrowMemories"
+                                :key="memory.id"
+                                class="rounded-2xl bg-slate-50 p-3"
+                            >
+                                <span
+                                    class="text-xs font-medium uppercase tracking-wide text-slate-400"
+                                >
+                                    {{ memory.type }}
+                                </span>
+
+                                <p class="mt-2 text-sm leading-5 text-slate-700">
+                                    {{ memory.description }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <p
+                            v-else
+                            class="mt-3 text-sm text-slate-500"
+                        >
                             Nothing scheduled yet.
                         </p>
                     </section>
 
                     <!-- UPCOMING -->
-                    <section
-                        class="rounded-3xl bg-white p-5 shadow-sm"
-                    >
+                    <section class="rounded-3xl bg-white p-5 shadow-sm">
                         <div class="flex items-center justify-between">
                             <p class="text-sm font-semibold text-slate-900">
                                 Upcoming
                             </p>
 
                             <span class="text-xs text-slate-400">
-                                0 items
+                                {{ upcomingMemories.length }}
+                                {{
+                                    upcomingMemories.length === 1
+                                        ? 'item'
+                                        : 'items'
+                                }}
                             </span>
                         </div>
 
-                        <p class="mt-3 text-sm text-slate-500">
+                        <div
+                            v-if="upcomingMemories.length"
+                            class="mt-4 space-y-3"
+                        >
+                            <div
+                                v-for="memory in upcomingMemories"
+                                :key="memory.id"
+                                class="rounded-2xl bg-slate-50 p-3"
+                            >
+                                <div
+                                    class="flex items-center justify-between gap-3"
+                                >
+                                    <span
+                                        class="text-xs font-medium uppercase tracking-wide text-slate-400"
+                                    >
+                                        {{ memory.type }}
+                                    </span>
+
+                                    <span class="text-xs text-slate-400">
+                                        {{
+                                            new Date(
+                                                memory.due_at,
+                                            ).toLocaleDateString()
+                                        }}
+                                    </span>
+                                </div>
+
+                                <p class="mt-2 text-sm leading-5 text-slate-700">
+                                    {{ memory.description }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <p
+                            v-else
+                            class="mt-3 text-sm text-slate-500"
+                        >
                             No upcoming items.
                         </p>
                     </section>
@@ -551,9 +649,7 @@ const saveMemory = () => {
             <!-- RIGHT SIDEBAR -->
             <aside class="hidden space-y-6 lg:block">
                 <!-- APON INSIGHTS -->
-                <section
-                    class="rounded-3xl bg-white p-5 shadow-sm"
-                >
+                <section class="rounded-3xl bg-white p-5 shadow-sm">
                     <div class="flex items-center gap-2">
                         <span>✨</span>
 
@@ -562,18 +658,14 @@ const saveMemory = () => {
                         </p>
                     </div>
 
-                    <p
-                        class="mt-3 text-sm leading-6 text-slate-500"
-                    >
+                    <p class="mt-3 text-sm leading-6 text-slate-500">
                         APON will show important reminders, open loops
                         and useful insights here.
                     </p>
                 </section>
 
                 <!-- RECENT MEMORIES -->
-                <section
-                    class="rounded-3xl bg-white p-5 shadow-sm"
-                >
+                <section class="rounded-3xl bg-white p-5 shadow-sm">
                     <p class="text-sm font-semibold text-slate-900">
                         Recent Memories
                     </p>

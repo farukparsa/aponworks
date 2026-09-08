@@ -35,9 +35,51 @@ class DashboardController extends Controller
                 'due_at',
             ]);
 
+        $tomorrowMemories = $request->user()
+            ->memories()
+            ->whereNotNull('due_at')
+            ->whereDate('due_at', now()->addDay()->toDateString())
+            ->orderBy('due_at')
+            ->get([
+                'id',
+                'type',
+                'title',
+                'description',
+                'due_at',
+            ]);
+
+        $dayAfterTomorrowMemories = $request->user()
+            ->memories()
+            ->whereNotNull('due_at')
+            ->whereDate('due_at', now()->addDays(2)->toDateString())
+            ->orderBy('due_at')
+            ->get([
+                'id',
+                'type',
+                'title',
+                'description',
+                'due_at',
+            ]);
+
+        $upcomingMemories = $request->user()
+            ->memories()
+            ->whereNotNull('due_at')
+            ->whereDate('due_at', '>', now()->addDays(2)->toDateString())
+            ->orderBy('due_at')
+            ->get([
+                'id',
+                'type',
+                'title',
+                'description',
+                'due_at',
+            ]);
+
         return Inertia::render('Dashboard', [
             'recentMemories' => $recentMemories,
             'todayMemories' => $todayMemories,
+            'tomorrowMemories' => $tomorrowMemories,
+            'dayAfterTomorrowMemories' => $dayAfterTomorrowMemories,
+            'upcomingMemories' => $upcomingMemories,
         ]);
     }
 }
