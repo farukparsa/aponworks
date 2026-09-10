@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Memory;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -83,6 +84,35 @@ class DashboardController extends Controller
                 'due_at',
             ]);
 
+        $completedMemories = $request->user()
+            ->memories()
+            ->where('type', 'task')
+            ->where('status', 'completed')
+            ->latest('updated_at')
+            ->get([
+                'id',
+                'type',
+                'title',
+                'description',
+                'status',
+                'due_at',
+                'updated_at',
+            ]);
+
+        $trashedMemories = Memory::onlyTrashed()
+            ->where('user_id', $request->user()->id)
+            ->latest('deleted_at')
+            ->get([
+                'id',
+                'type',
+                'title',
+                'description',
+                'status',
+                'due_at',
+                'expiry_at',
+                'deleted_at',
+            ]);
+
         $customDays = max(1, (int) $request->integer('days', 7));
         $customType = $request->string('type')->toString();
 
@@ -129,6 +159,8 @@ class DashboardController extends Controller
             'tomorrowMemories' => $tomorrowMemories,
             'dayAfterTomorrowMemories' => $dayAfterTomorrowMemories,
             'upcomingMemories' => $upcomingMemories,
+            'completedMemories' => $completedMemories,
+            'trashedMemories' => $trashedMemories,
             'customScheduleMemories' => $customScheduleMemories,
             'customDays' => $customDays,
             'customType' => $customType,

@@ -30,6 +30,7 @@ type RecentMemory = {
     type: string;
     title: string | null;
     description: string;
+    status?: string;
     created_at: string;
 };
 
@@ -38,6 +39,7 @@ type ScheduledMemory = {
     type: string;
     title: string | null;
     description: string;
+    status?: string;
     due_at: string | null;
     expiry_at?: string | null;
 };
@@ -79,7 +81,6 @@ const customScheduleMemories = computed<ScheduledMemory[]>(() => {
 });
 
 const initialCustomDays = Number(page.props.customDays ?? 7);
-
 const initialCustomType = String(page.props.customType ?? 'all');
 
 const customDays = ref(
@@ -145,7 +146,6 @@ const applyCustomSchedule = () => {
     }
 
     days = Math.floor(days);
-
     customDays.value = days;
 
     router.get(
@@ -214,12 +214,62 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                         Home
                     </a>
 
-                    <a
-                        href="#"
-                        class="block rounded-xl px-4 py-3 text-slate-600 hover:bg-slate-100"
-                    >
-                        Memories
-                    </a>
+                    <!-- MEMORIES -->
+                    <div class="rounded-2xl border border-slate-100 p-2">
+                        <div
+                            class="rounded-xl px-3 py-2 font-semibold text-slate-800"
+                        >
+                            🧠 Memories
+                        </div>
+
+                        <div class="mt-1 space-y-1 pl-3">
+                            <a
+                                href="#"
+                                class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100"
+                            >
+                                All Memories
+                            </a>
+
+                            <a
+                                href="#"
+                                class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100"
+                            >
+                                ✓ Completed Tasks
+                            </a>
+
+                            <!-- BIN -->
+                            <div class="mt-2 rounded-xl bg-slate-50 p-2">
+                                <div
+                                    class="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-slate-500"
+                                >
+                                    🗑 BIN
+                                </div>
+
+                                <div class="mt-1 space-y-1 pl-2">
+                                    <a
+                                        href="#"
+                                        class="block rounded-lg px-2 py-2 text-xs text-slate-600 hover:bg-white"
+                                    >
+                                        Deleted Tasks
+                                    </a>
+
+                                    <a
+                                        href="#"
+                                        class="block rounded-lg px-2 py-2 text-xs text-slate-600 hover:bg-white"
+                                    >
+                                        Deleted Diary
+                                    </a>
+
+                                    <a
+                                        href="#"
+                                        class="block rounded-lg px-2 py-2 text-xs text-slate-600 hover:bg-white"
+                                    >
+                                        Deleted Notes
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <a
                         href="#"
@@ -782,7 +832,6 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                         </span>
                     </div>
 
-                    <!-- CUSTOM FILTER -->
                     <form
                         class="mt-5 flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-end"
                         @submit.prevent="applyCustomSchedule"
@@ -849,7 +898,6 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                         </button>
                     </form>
 
-                    <!-- CUSTOM RESULTS -->
                     <div
                         v-if="customScheduleMemories.length"
                         class="mt-5 space-y-3"

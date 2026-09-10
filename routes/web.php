@@ -15,6 +15,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::patch('memories/{memory}/complete', [MemoryController::class, 'complete'])
         ->name('memories.complete');
+
+    Route::patch('memories/{memory}/reopen', [MemoryController::class, 'reopen'])
+        ->name('memories.reopen');
+
+    Route::delete('memories/{memory}', [MemoryController::class, 'destroy'])
+        ->name('memories.destroy');
 });
 
 require __DIR__.'/settings.php';

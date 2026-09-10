@@ -39,4 +39,24 @@ class MemoryController extends Controller
 
         return back()->with('success', 'Task completed.');
     }
+
+    public function reopen(Request $request, Memory $memory): RedirectResponse
+    {
+        abort_unless($memory->user_id === $request->user()->id, 403);
+
+        $memory->update([
+            'status' => 'active',
+        ]);
+
+        return back()->with('success', 'Task reopened.');
+    }
+
+    public function destroy(Request $request, Memory $memory): RedirectResponse
+    {
+        abort_unless($memory->user_id === $request->user()->id, 403);
+
+        $memory->delete();
+
+        return back()->with('success', 'Memory moved to Trash.');
+    }
 }
