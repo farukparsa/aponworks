@@ -4,11 +4,24 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MemoryController;
 use Illuminate\Support\Facades\Route;
 
+/*
+|--------------------------------------------------------------------------
+| Public Home
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/', function () {
-    return redirect('/dashboard');
-});
+    return inertia('Welcome');
+})->name('home');
+
+/*
+|--------------------------------------------------------------------------
+| Authenticated APONWORKS
+|--------------------------------------------------------------------------
+*/
 
 Route::middleware(['auth', 'verified'])->group(function () {
+
     /*
     |--------------------------------------------------------------------------
     | Dashboard
@@ -78,11 +91,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::patch('/memories/{memory}/complete', [MemoryController::class, 'complete'])
-        ->name('memories.complete');
+    Route::patch(
+        '/memories/{memory}/complete',
+        [MemoryController::class, 'complete']
+    )->name('memories.complete');
 
-    Route::patch('/memories/{memory}/reopen', [MemoryController::class, 'reopen'])
-        ->name('memories.reopen');
+    Route::patch(
+        '/memories/{memory}/reopen',
+        [MemoryController::class, 'reopen']
+    )->name('memories.reopen');
 
     /*
     |--------------------------------------------------------------------------
@@ -99,14 +116,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/memories/deleted/{memory}', [MemoryController::class, 'showDeleted'])
-        ->name('memories.deleted.show');
+    Route::get(
+        '/memories/deleted/{memory}',
+        [MemoryController::class, 'showDeleted']
+    )->name('memories.deleted.show');
 
-    Route::patch('/memories/{memory}/restore', [MemoryController::class, 'restore'])
-        ->name('memories.restore');
+    Route::patch(
+        '/memories/{memory}/restore',
+        [MemoryController::class, 'restore']
+    )->name('memories.restore');
 
-    Route::delete('/memories/{memory}/permanent', [MemoryController::class, 'forceDestroy'])
-        ->name('memories.force-destroy');
+    Route::delete(
+        '/memories/{memory}/permanent',
+        [MemoryController::class, 'forceDestroy']
+    )->name('memories.force-destroy');
 });
 
 require __DIR__.'/settings.php';
