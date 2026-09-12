@@ -14,17 +14,6 @@ import {
 import { logout } from '@/routes';
 import { edit } from '@/routes/profile';
 
-defineOptions({
-    layout: {
-        breadcrumbs: [
-            {
-                title: 'APONWORKS',
-                href: '/dashboard',
-            },
-        ],
-    },
-});
-
 type RecentMemory = {
     id: number;
     type: string;
@@ -117,11 +106,63 @@ const memoryForm = useForm({
 
 const selectMemoryType = (type: 'note' | 'task' | 'diary') => {
     memoryForm.type = type;
+
+    window.setTimeout(() => {
+        document
+            .getElementById('memory-composer')
+            ?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+            });
+
+        document.getElementById('memory-description')?.focus();
+    }, 50);
 };
+
+const composerTitle = computed(() => {
+    if (memoryForm.type === 'task') {
+        return 'Add Task';
+    }
+
+    if (memoryForm.type === 'diary') {
+        return 'Write Diary';
+    }
+
+    return 'Add Note';
+});
+
+const composerPlaceholder = computed(() => {
+    if (memoryForm.type === 'task') {
+        return 'What do you need to do?';
+    }
+
+    if (memoryForm.type === 'diary') {
+        return 'Write your diary here...';
+    }
+
+    return 'Write your note here...';
+});
+
+const saveButtonText = computed(() => {
+    if (memoryForm.processing) {
+        return 'Saving...';
+    }
+
+    if (memoryForm.type === 'task') {
+        return 'Save Task';
+    }
+
+    if (memoryForm.type === 'diary') {
+        return 'Save Diary';
+    }
+
+    return 'Save Note';
+});
 
 const saveMemory = () => {
     memoryForm.post('/memories', {
         preserveScroll: true,
+
         onSuccess: () => {
             memoryForm.reset('description', 'due_at');
         },
@@ -146,6 +187,7 @@ const applyCustomSchedule = () => {
     }
 
     days = Math.floor(days);
+
     customDays.value = days;
 
     router.get(
@@ -195,7 +237,9 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
             class="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[220px_1fr_300px]"
         >
             <!-- LEFT SIDEBAR -->
-            <aside class="hidden rounded-3xl bg-white p-5 shadow-sm lg:block">
+            <aside
+                class="hidden rounded-3xl bg-white p-5 shadow-sm lg:block"
+            >
                 <div class="mb-8">
                     <h1 class="text-2xl font-bold text-slate-900">
                         APONWORKS
@@ -206,68 +250,140 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                     </p>
                 </div>
 
-                <nav class="space-y-2 text-sm">
-                    <a
-                        href="#"
+                <nav class="space-y-3 text-sm">
+                    <!-- HOME -->
+                    <Link
+                        href="/dashboard"
                         class="block rounded-xl bg-slate-100 px-4 py-3 font-medium text-slate-900"
                     >
                         Home
-                    </a>
+                    </Link>
 
-                    <!-- MEMORIES -->
+                    <!-- CREATE -->
                     <div class="rounded-2xl border border-slate-100 p-2">
                         <div
-                            class="rounded-xl px-3 py-2 font-semibold text-slate-800"
+                            class="rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500"
                         >
-                            🧠 Memories
+                            Create
                         </div>
 
-                        <div class="mt-1 space-y-1 pl-3">
-                            <a
-                                href="#"
+                        <div class="mt-1 space-y-1">
+                            <button
+                                type="button"
+                                @click="selectMemoryType('task')"
+                                class="block w-full rounded-xl px-3 py-2 text-left transition"
+                                :class="
+                                    memoryForm.type === 'task'
+                                        ? 'bg-slate-900 font-medium text-white'
+                                        : 'text-slate-600 hover:bg-slate-100'
+                                "
+                            >
+                                ✅ Add Task
+                            </button>
+
+                            <button
+                                type="button"
+                                @click="selectMemoryType('note')"
+                                class="block w-full rounded-xl px-3 py-2 text-left transition"
+                                :class="
+                                    memoryForm.type === 'note'
+                                        ? 'bg-slate-900 font-medium text-white'
+                                        : 'text-slate-600 hover:bg-slate-100'
+                                "
+                            >
+                                📝 Add Note
+                            </button>
+
+                            <button
+                                type="button"
+                                @click="selectMemoryType('diary')"
+                                class="block w-full rounded-xl px-3 py-2 text-left transition"
+                                :class="
+                                    memoryForm.type === 'diary'
+                                        ? 'bg-slate-900 font-medium text-white'
+                                        : 'text-slate-600 hover:bg-slate-100'
+                                "
+                            >
+                                📖 Write Diary
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- VIEW -->
+                    <div class="rounded-2xl border border-slate-100 p-2">
+                        <div
+                            class="rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500"
+                        >
+                            View
+                        </div>
+
+                        <div class="mt-1 space-y-1">
+                            <Link
+                                href="/memories"
                                 class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100"
                             >
-                                All Memories
-                            </a>
+                                📋 All
+                            </Link>
 
-                            <a
-                                href="#"
+                            <Link
+                                href="/tasks"
+                                class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100"
+                            >
+                                ✅ Tasks
+                            </Link>
+
+                            <Link
+                                href="/notes"
+                                class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100"
+                            >
+                                📝 Notes
+                            </Link>
+
+                            <Link
+                                href="/diary"
+                                class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100"
+                            >
+                                📖 Diary
+                            </Link>
+
+                            <Link
+                                href="/tasks/completed"
                                 class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100"
                             >
                                 ✓ Completed Tasks
-                            </a>
+                            </Link>
+                        </div>
+                    </div>
 
-                            <!-- BIN -->
-                            <div class="mt-2 rounded-xl bg-slate-50 p-2">
-                                <div
-                                    class="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-slate-500"
-                                >
-                                    🗑 BIN
-                                </div>
+                    <!-- BIN -->
+                    <div class="rounded-2xl border border-slate-100 p-2">
+                        <div
+                            class="rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500"
+                        >
+                            🗑 BIN
+                        </div>
 
-                                <div class="mt-1 space-y-1 pl-2">
-                                    <a
-                                        href="#"
-                                        class="block rounded-lg px-2 py-2 text-xs text-slate-600 hover:bg-white"
-                                    >
-                                        Deleted Tasks
-                                    </a>
+                        <div class="mt-1 space-y-1">
+                            <Link
+                                href="/bin/tasks"
+                                class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100"
+                            >
+                                Deleted Tasks
+                            </Link>
 
-                                    <a
-                                        href="#"
-                                        class="block rounded-lg px-2 py-2 text-xs text-slate-600 hover:bg-white"
-                                    >
-                                        Deleted Diary
-                                    </a>
+                            <Link
+                                href="/bin/notes"
+                                class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100"
+                            >
+                                Deleted Notes
+                            </Link>
 
-                                    <a
-                                        href="#"
-                                        class="block rounded-lg px-2 py-2 text-xs text-slate-600 hover:bg-white"
-                                    >
-                                        Deleted Notes
-                                    </a>
-                                </div>
-                            </div>
+                            <Link
+                                href="/bin/diary"
+                                class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100"
+                            >
+                                Deleted Diary
+                            </Link>
                         </div>
                     </div>
 
@@ -317,7 +433,7 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                 </div>
             </aside>
 
-            <!-- MAIN CONTENT -->
+            <!-- MAIN -->
             <main class="min-w-0">
                 <!-- TOP BAR -->
                 <div class="mb-6 flex items-center gap-3">
@@ -331,32 +447,26 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                         <button
                             type="button"
                             class="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100"
-                            title="Ask APON"
                         >
                             ✨
                         </button>
                     </div>
 
-                    <!-- NOTIFICATIONS -->
                     <button
                         type="button"
                         class="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-lg shadow-sm hover:bg-slate-100"
-                        title="Notifications"
                     >
                         🔔
-
                         <span
                             class="absolute right-2 top-2 h-2 w-2 rounded-full bg-slate-900"
                         ></span>
                     </button>
 
-                    <!-- USER MENU -->
                     <DropdownMenu>
                         <DropdownMenuTrigger as-child>
                             <button
                                 type="button"
                                 class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-sm font-bold text-white shadow-sm hover:bg-slate-800"
-                                title="Account"
                             >
                                 {{
                                     user?.name
@@ -391,8 +501,7 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                                     :href="edit()"
                                     class="w-full cursor-pointer rounded-xl px-3 py-2.5"
                                 >
-                                    <span class="mr-2">👤</span>
-                                    Profile & Settings
+                                    👤 Profile & Settings
                                 </Link>
                             </DropdownMenuItem>
 
@@ -403,11 +512,12 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                                     class="flex w-full items-center justify-between"
                                 >
                                     <div>
-                                        <span class="mr-2">🌐</span>
-                                        Language
+                                        🌐 Language
                                     </div>
 
-                                    <span class="text-xs text-slate-400">
+                                    <span
+                                        class="text-xs text-slate-400"
+                                    >
                                         English
                                     </span>
                                 </div>
@@ -423,8 +533,7 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                                     @click="handleLogout"
                                     class="w-full cursor-pointer rounded-xl px-3 py-2.5 text-left text-red-600"
                                 >
-                                    <span class="mr-2">↪</span>
-                                    Log out
+                                    ↪ Log out
                                 </Link>
                             </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -434,7 +543,8 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                 <!-- GREETING -->
                 <div class="mb-6">
                     <h2 class="text-2xl font-bold text-slate-900">
-                        {{ greeting }}, {{ user?.name || 'there' }}!
+                        {{ greeting }},
+                        {{ user?.name || 'there' }}!
                     </h2>
 
                     <p class="mt-1 text-sm text-slate-500">
@@ -442,13 +552,42 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                     </p>
                 </div>
 
-                <!-- MEMORY FORM -->
-                <section class="mb-6 rounded-3xl bg-white p-5 shadow-sm">
+                <!-- COMPOSER -->
+                <section
+                    id="memory-composer"
+                    class="mb-6 rounded-3xl bg-white p-5 shadow-sm"
+                >
                     <form @submit.prevent="saveMemory">
+                        <div
+                            class="mb-4 flex flex-wrap items-center justify-between gap-3"
+                        >
+                            <div>
+                                <h3
+                                    class="text-lg font-semibold text-slate-900"
+                                >
+                                    {{ composerTitle }}
+                                </h3>
+
+                                <p
+                                    class="mt-1 text-xs text-slate-400"
+                                >
+                                    Add text, file, photo or voice to this
+                                    {{ memoryForm.type }}.
+                                </p>
+                            </div>
+
+                            <span
+                                class="rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-semibold uppercase text-slate-500"
+                            >
+                                {{ memoryForm.type }}
+                            </span>
+                        </div>
+
                         <textarea
+                            id="memory-description"
                             v-model="memoryForm.description"
                             rows="5"
-                            placeholder="Write your Diary Here or Add Task and Notes ..."
+                            :placeholder="composerPlaceholder"
                             class="w-full resize-none border-0 bg-transparent text-base text-slate-800 outline-none placeholder:text-slate-400"
                         ></textarea>
 
@@ -459,13 +598,16 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                             {{ memoryForm.errors.description }}
                         </p>
 
-                        <!-- DUE DATE -->
                         <div class="mt-4">
                             <label
                                 for="memory-due-date"
                                 class="mb-2 block text-xs font-medium text-slate-500"
                             >
-                                Due Date
+                                {{
+                                    memoryForm.type === 'task'
+                                        ? 'Due Date'
+                                        : 'Date'
+                                }}
                                 <span class="font-normal text-slate-400">
                                     (optional)
                                 </span>
@@ -477,13 +619,6 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                                 type="date"
                                 class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-slate-400 sm:w-auto"
                             />
-
-                            <p
-                                v-if="memoryForm.errors.due_at"
-                                class="mt-2 text-sm text-red-600"
-                            >
-                                {{ memoryForm.errors.due_at }}
-                            </p>
                         </div>
 
                         <p
@@ -497,45 +632,6 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                             class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4"
                         >
                             <div class="flex flex-wrap gap-2">
-                                <button
-                                    type="button"
-                                    @click="selectMemoryType('note')"
-                                    :class="[
-                                        'rounded-xl px-3 py-2 text-sm transition',
-                                        memoryForm.type === 'note'
-                                            ? 'bg-slate-900 text-white'
-                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
-                                    ]"
-                                >
-                                    📝 Note
-                                </button>
-
-                                <button
-                                    type="button"
-                                    @click="selectMemoryType('task')"
-                                    :class="[
-                                        'rounded-xl px-3 py-2 text-sm transition',
-                                        memoryForm.type === 'task'
-                                            ? 'bg-slate-900 text-white'
-                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
-                                    ]"
-                                >
-                                    ✅ Task
-                                </button>
-
-                                <button
-                                    type="button"
-                                    @click="selectMemoryType('diary')"
-                                    :class="[
-                                        'rounded-xl px-3 py-2 text-sm transition',
-                                        memoryForm.type === 'diary'
-                                            ? 'bg-slate-900 text-white'
-                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
-                                    ]"
-                                >
-                                    📖 Diary
-                                </button>
-
                                 <button
                                     type="button"
                                     class="rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-600 hover:bg-slate-200"
@@ -566,11 +662,7 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                                 "
                                 class="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                {{
-                                    memoryForm.processing
-                                        ? 'Saving...'
-                                        : 'Save'
-                                }}
+                                {{ saveButtonText }}
                             </button>
                         </div>
                     </form>
@@ -578,20 +670,16 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
 
                 <!-- SCHEDULE -->
                 <div class="grid gap-4 sm:grid-cols-2">
-                    <!-- TODAY -->
-                    <section class="rounded-3xl bg-white p-5 shadow-sm">
+                    <section
+                        class="rounded-3xl bg-white p-5 shadow-sm"
+                    >
                         <div class="flex items-center justify-between">
                             <p class="text-sm font-semibold text-slate-900">
                                 Today
                             </p>
 
                             <span class="text-xs text-slate-400">
-                                {{ todayMemories.length }}
-                                {{
-                                    todayMemories.length === 1
-                                        ? 'item'
-                                        : 'items'
-                                }}
+                                {{ todayMemories.length }} items
                             </span>
                         </div>
 
@@ -610,7 +698,9 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                                     {{ memory.type }}
                                 </span>
 
-                                <p class="mt-2 text-sm leading-5 text-slate-700">
+                                <p
+                                    class="mt-2 text-sm leading-5 text-slate-700"
+                                >
                                     {{ memory.description }}
                                 </p>
 
@@ -633,20 +723,16 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                         </p>
                     </section>
 
-                    <!-- TOMORROW -->
-                    <section class="rounded-3xl bg-white p-5 shadow-sm">
+                    <section
+                        class="rounded-3xl bg-white p-5 shadow-sm"
+                    >
                         <div class="flex items-center justify-between">
                             <p class="text-sm font-semibold text-slate-900">
                                 Tomorrow
                             </p>
 
                             <span class="text-xs text-slate-400">
-                                {{ tomorrowMemories.length }}
-                                {{
-                                    tomorrowMemories.length === 1
-                                        ? 'item'
-                                        : 'items'
-                                }}
+                                {{ tomorrowMemories.length }} items
                             </span>
                         </div>
 
@@ -665,7 +751,9 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                                     {{ memory.type }}
                                 </span>
 
-                                <p class="mt-2 text-sm leading-5 text-slate-700">
+                                <p
+                                    class="mt-2 text-sm leading-5 text-slate-700"
+                                >
                                     {{ memory.description }}
                                 </p>
 
@@ -688,20 +776,16 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                         </p>
                     </section>
 
-                    <!-- DAY AFTER TOMORROW -->
-                    <section class="rounded-3xl bg-white p-5 shadow-sm">
+                    <section
+                        class="rounded-3xl bg-white p-5 shadow-sm"
+                    >
                         <div class="flex items-center justify-between">
                             <p class="text-sm font-semibold text-slate-900">
                                 Day After Tomorrow
                             </p>
 
                             <span class="text-xs text-slate-400">
-                                {{ dayAfterTomorrowMemories.length }}
-                                {{
-                                    dayAfterTomorrowMemories.length === 1
-                                        ? 'item'
-                                        : 'items'
-                                }}
+                                {{ dayAfterTomorrowMemories.length }} items
                             </span>
                         </div>
 
@@ -720,7 +804,9 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                                     {{ memory.type }}
                                 </span>
 
-                                <p class="mt-2 text-sm leading-5 text-slate-700">
+                                <p
+                                    class="mt-2 text-sm leading-5 text-slate-700"
+                                >
                                     {{ memory.description }}
                                 </p>
 
@@ -743,20 +829,16 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                         </p>
                     </section>
 
-                    <!-- UPCOMING -->
-                    <section class="rounded-3xl bg-white p-5 shadow-sm">
+                    <section
+                        class="rounded-3xl bg-white p-5 shadow-sm"
+                    >
                         <div class="flex items-center justify-between">
                             <p class="text-sm font-semibold text-slate-900">
                                 Upcoming
                             </p>
 
                             <span class="text-xs text-slate-400">
-                                {{ upcomingMemories.length }}
-                                {{
-                                    upcomingMemories.length === 1
-                                        ? 'item'
-                                        : 'items'
-                                }}
+                                {{ upcomingMemories.length }} items
                             </span>
                         </div>
 
@@ -778,12 +860,16 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                                         {{ memory.type }}
                                     </span>
 
-                                    <span class="text-xs text-slate-400">
+                                    <span
+                                        class="text-xs text-slate-400"
+                                    >
                                         {{ formatDate(memory.due_at) }}
                                     </span>
                                 </div>
 
-                                <p class="mt-2 text-sm leading-5 text-slate-700">
+                                <p
+                                    class="mt-2 text-sm leading-5 text-slate-700"
+                                >
                                     {{ memory.description }}
                                 </p>
 
@@ -808,27 +894,28 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                 </div>
 
                 <!-- CUSTOM SCHEDULE -->
-                <section class="mt-6 rounded-3xl bg-white p-5 shadow-sm">
+                <section
+                    class="mt-6 rounded-3xl bg-white p-5 shadow-sm"
+                >
                     <div
                         class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
                     >
                         <div>
-                            <h3 class="text-base font-semibold text-slate-900">
+                            <h3
+                                class="text-base font-semibold text-slate-900"
+                            >
                                 Custom Schedule
                             </h3>
 
-                            <p class="mt-1 text-sm text-slate-500">
+                            <p
+                                class="mt-1 text-sm text-slate-500"
+                            >
                                 Show anything coming in the next number of days.
                             </p>
                         </div>
 
                         <span class="text-xs text-slate-400">
-                            {{ customScheduleMemories.length }}
-                            {{
-                                customScheduleMemories.length === 1
-                                    ? 'item'
-                                    : 'items'
-                            }}
+                            {{ customScheduleMemories.length }} items
                         </span>
                     </div>
 
@@ -850,7 +937,6 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                                 type="number"
                                 min="1"
                                 step="1"
-                                placeholder="Example: 20"
                                 class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none focus:border-slate-400"
                             />
                         </div>
@@ -924,13 +1010,8 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                             </div>
 
                             <p
-                                v-if="memory.title"
-                                class="mt-3 text-sm font-semibold text-slate-800"
+                                class="mt-2 text-sm leading-6 text-slate-700"
                             >
-                                {{ memory.title }}
-                            </p>
-
-                            <p class="mt-2 text-sm leading-6 text-slate-700">
                                 {{ memory.description }}
                             </p>
 
@@ -950,8 +1031,7 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                         class="mt-5 rounded-2xl bg-slate-50 p-5 text-center"
                     >
                         <p class="text-sm text-slate-500">
-                            No matching items found for the next
-                            {{ customDays }} days.
+                            No matching items found.
                         </p>
                     </div>
                 </section>
@@ -959,24 +1039,30 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
 
             <!-- RIGHT SIDEBAR -->
             <aside class="hidden space-y-6 lg:block">
-                <!-- APON INSIGHTS -->
-                <section class="rounded-3xl bg-white p-5 shadow-sm">
+                <section
+                    class="rounded-3xl bg-white p-5 shadow-sm"
+                >
                     <div class="flex items-center gap-2">
                         <span>✨</span>
 
-                        <p class="text-sm font-semibold text-slate-900">
+                        <p
+                            class="text-sm font-semibold text-slate-900"
+                        >
                             Anything I should know?
                         </p>
                     </div>
 
-                    <p class="mt-3 text-sm leading-6 text-slate-500">
-                        APON will show important reminders, open loops
-                        and useful insights here.
+                    <p
+                        class="mt-3 text-sm leading-6 text-slate-500"
+                    >
+                        APON will show important reminders, open loops and useful
+                        insights here.
                     </p>
                 </section>
 
-                <!-- RECENT MEMORIES -->
-                <section class="rounded-3xl bg-white p-5 shadow-sm">
+                <section
+                    class="rounded-3xl bg-white p-5 shadow-sm"
+                >
                     <p class="text-sm font-semibold text-slate-900">
                         Recent Memories
                     </p>
@@ -1024,7 +1110,6 @@ const customMemoryLabel = (memory: ScheduledMemory) => {
                     </p>
                 </section>
 
-                <!-- FUTURE AD -->
                 <section
                     class="rounded-3xl border border-dashed border-slate-200 bg-white p-5"
                 >
