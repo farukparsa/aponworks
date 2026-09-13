@@ -8,9 +8,12 @@ use Inertia\Inertia;
 
 class MemoryController extends Controller
 {
-    /**
-     * All active memories.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | ALL MEMORIES
+    |--------------------------------------------------------------------------
+    */
+
     public function index()
     {
         $memories = Memory::query()
@@ -25,9 +28,12 @@ class MemoryController extends Controller
         ]);
     }
 
-    /**
-     * Active Tasks workspace.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | TASKS
+    |--------------------------------------------------------------------------
+    */
+
     public function tasks()
     {
         $tasks = Memory::query()
@@ -42,26 +48,31 @@ class MemoryController extends Controller
         ]);
     }
 
-    /**
-     * Notes.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | NOTES
+    |--------------------------------------------------------------------------
+    */
+
     public function notes()
     {
-        $memories = Memory::query()
+        $notes = Memory::query()
             ->where('user_id', auth()->id())
             ->where('type', 'note')
             ->latest()
             ->get();
 
-        return Inertia::render('Memories/Index', [
-            'memories' => $memories,
-            'view' => 'notes',
+        return Inertia::render('Notes/Index', [
+            'notes' => $notes,
         ]);
     }
 
-    /**
-     * Diary.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | DIARY
+    |--------------------------------------------------------------------------
+    */
+
     public function diary()
     {
         $memories = Memory::query()
@@ -76,9 +87,12 @@ class MemoryController extends Controller
         ]);
     }
 
-    /**
-     * Completed Tasks.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | COMPLETED TASKS
+    |--------------------------------------------------------------------------
+    */
+
     public function completedTasks()
     {
         $tasks = Memory::query()
@@ -93,9 +107,12 @@ class MemoryController extends Controller
         ]);
     }
 
-    /**
-     * Deleted Tasks.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | BIN - DELETED TASKS
+    |--------------------------------------------------------------------------
+    */
+
     public function deletedTasks()
     {
         $memories = Memory::onlyTrashed()
@@ -110,9 +127,12 @@ class MemoryController extends Controller
         ]);
     }
 
-    /**
-     * Deleted Notes.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | BIN - DELETED NOTES
+    |--------------------------------------------------------------------------
+    */
+
     public function deletedNotes()
     {
         $memories = Memory::onlyTrashed()
@@ -127,9 +147,12 @@ class MemoryController extends Controller
         ]);
     }
 
-    /**
-     * Deleted Diary.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | BIN - DELETED DIARY
+    |--------------------------------------------------------------------------
+    */
+
     public function deletedDiary()
     {
         $memories = Memory::onlyTrashed()
@@ -144,9 +167,12 @@ class MemoryController extends Controller
         ]);
     }
 
-    /**
-     * Create Task, Note or Diary entry.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE MEMORY
+    |--------------------------------------------------------------------------
+    */
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -167,9 +193,12 @@ class MemoryController extends Controller
         return back();
     }
 
-    /**
-     * Edit an active memory.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE MEMORY
+    |--------------------------------------------------------------------------
+    */
+
     public function update(Request $request, Memory $memory)
     {
         abort_unless($memory->user_id === auth()->id(), 403);
@@ -187,9 +216,12 @@ class MemoryController extends Controller
         return back();
     }
 
-    /**
-     * Complete a Task.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | COMPLETE TASK
+    |--------------------------------------------------------------------------
+    */
+
     public function complete(Memory $memory)
     {
         abort_unless($memory->user_id === auth()->id(), 403);
@@ -202,9 +234,12 @@ class MemoryController extends Controller
         return back();
     }
 
-    /**
-     * Reopen a completed Task.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | REOPEN TASK
+    |--------------------------------------------------------------------------
+    */
+
     public function reopen(Memory $memory)
     {
         abort_unless($memory->user_id === auth()->id(), 403);
@@ -217,9 +252,12 @@ class MemoryController extends Controller
         return back();
     }
 
-    /**
-     * Move an item to BIN.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | MOVE TO BIN
+    |--------------------------------------------------------------------------
+    */
+
     public function destroy(Memory $memory)
     {
         abort_unless($memory->user_id === auth()->id(), 403);
@@ -229,9 +267,12 @@ class MemoryController extends Controller
         return back();
     }
 
-    /**
-     * Open one deleted item.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | OPEN DELETED ITEM
+    |--------------------------------------------------------------------------
+    */
+
     public function showDeleted($memory)
     {
         $memory = Memory::onlyTrashed()
@@ -243,9 +284,12 @@ class MemoryController extends Controller
         ]);
     }
 
-    /**
-     * Restore an item from BIN.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | RESTORE DELETED ITEM
+    |--------------------------------------------------------------------------
+    */
+
     public function restore($memory)
     {
         $memory = Memory::onlyTrashed()
@@ -254,7 +298,10 @@ class MemoryController extends Controller
 
         $memory->restore();
 
-        if ($memory->type === 'task' && $memory->status === 'completed') {
+        if (
+            $memory->type === 'task' &&
+            $memory->status === 'completed'
+        ) {
             return redirect('/tasks/completed');
         }
 
@@ -273,9 +320,12 @@ class MemoryController extends Controller
         return redirect('/memories');
     }
 
-    /**
-     * Permanently delete an item from BIN.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | PERMANENT DELETE
+    |--------------------------------------------------------------------------
+    */
+
     public function forceDestroy($memory)
     {
         $memory = Memory::onlyTrashed()
