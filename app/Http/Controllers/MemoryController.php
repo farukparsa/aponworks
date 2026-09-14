@@ -8,12 +8,6 @@ use Inertia\Inertia;
 
 class MemoryController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | ALL MEMORIES
-    |--------------------------------------------------------------------------
-    */
-
     public function index()
     {
         $memories = Memory::query()
@@ -27,12 +21,6 @@ class MemoryController extends Controller
             'view' => 'all',
         ]);
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | TASKS
-    |--------------------------------------------------------------------------
-    */
 
     public function tasks()
     {
@@ -48,12 +36,6 @@ class MemoryController extends Controller
         ]);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | NOTES
-    |--------------------------------------------------------------------------
-    */
-
     public function notes()
     {
         $notes = Memory::query()
@@ -67,31 +49,18 @@ class MemoryController extends Controller
         ]);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | DIARY
-    |--------------------------------------------------------------------------
-    */
-
     public function diary()
     {
-        $memories = Memory::query()
+        $entries = Memory::query()
             ->where('user_id', auth()->id())
             ->where('type', 'diary')
             ->latest()
             ->get();
 
-        return Inertia::render('Memories/Index', [
-            'memories' => $memories,
-            'view' => 'diary',
+        return Inertia::render('Diary/Index', [
+            'entries' => $entries,
         ]);
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | COMPLETED TASKS
-    |--------------------------------------------------------------------------
-    */
 
     public function completedTasks()
     {
@@ -107,12 +76,6 @@ class MemoryController extends Controller
         ]);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | BIN - DELETED TASKS
-    |--------------------------------------------------------------------------
-    */
-
     public function deletedTasks()
     {
         $memories = Memory::onlyTrashed()
@@ -126,12 +89,6 @@ class MemoryController extends Controller
             'view' => 'deleted-tasks',
         ]);
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | BIN - DELETED NOTES
-    |--------------------------------------------------------------------------
-    */
 
     public function deletedNotes()
     {
@@ -147,12 +104,6 @@ class MemoryController extends Controller
         ]);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | BIN - DELETED DIARY
-    |--------------------------------------------------------------------------
-    */
-
     public function deletedDiary()
     {
         $memories = Memory::onlyTrashed()
@@ -166,12 +117,6 @@ class MemoryController extends Controller
             'view' => 'deleted-diary',
         ]);
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | CREATE MEMORY
-    |--------------------------------------------------------------------------
-    */
 
     public function store(Request $request)
     {
@@ -193,12 +138,6 @@ class MemoryController extends Controller
         return back();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE MEMORY
-    |--------------------------------------------------------------------------
-    */
-
     public function update(Request $request, Memory $memory)
     {
         abort_unless($memory->user_id === auth()->id(), 403);
@@ -216,12 +155,6 @@ class MemoryController extends Controller
         return back();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | COMPLETE TASK
-    |--------------------------------------------------------------------------
-    */
-
     public function complete(Memory $memory)
     {
         abort_unless($memory->user_id === auth()->id(), 403);
@@ -233,12 +166,6 @@ class MemoryController extends Controller
 
         return back();
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | REOPEN TASK
-    |--------------------------------------------------------------------------
-    */
 
     public function reopen(Memory $memory)
     {
@@ -252,12 +179,6 @@ class MemoryController extends Controller
         return back();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | MOVE TO BIN
-    |--------------------------------------------------------------------------
-    */
-
     public function destroy(Memory $memory)
     {
         abort_unless($memory->user_id === auth()->id(), 403);
@@ -266,12 +187,6 @@ class MemoryController extends Controller
 
         return back();
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | OPEN DELETED ITEM
-    |--------------------------------------------------------------------------
-    */
 
     public function showDeleted($memory)
     {
@@ -283,12 +198,6 @@ class MemoryController extends Controller
             'memory' => $memory,
         ]);
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | RESTORE DELETED ITEM
-    |--------------------------------------------------------------------------
-    */
 
     public function restore($memory)
     {
@@ -319,12 +228,6 @@ class MemoryController extends Controller
 
         return redirect('/memories');
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | PERMANENT DELETE
-    |--------------------------------------------------------------------------
-    */
 
     public function forceDestroy($memory)
     {
