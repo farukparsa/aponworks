@@ -158,17 +158,6 @@ const formatDate = (date: string | null) => {
 
     return new Date(date).toLocaleDateString();
 };
-
-const formatTime = (date: string | null) => {
-    if (!date) {
-        return '';
-    }
-
-    return new Date(date).toLocaleTimeString([], {
-        hour: 'numeric',
-        minute: '2-digit',
-    });
-};
 </script>
 
 
@@ -273,44 +262,33 @@ const formatTime = (date: string | null) => {
                                 </div>
                             </div>
 
-                            <div class="row-side">
-                                <div class="row-meta">
-                                    <span class="meta-date">
-                                        {{ formatDate(memory.due_at || memory.created_at) }}
-                                    </span>
-                                    <span class="meta-time">
-                                        {{ formatTime(memory.due_at || memory.created_at) }}
-                                    </span>
-                                </div>
+                            <div class="row-actions">
+                                <Link
+                                    v-if="isDeletedView"
+                                    :href="`/memories/deleted/${memory.id}`"
+                                    class="open-button"
+                                >
+                                    Open <span>→</span>
+                                </Link>
 
-                                <div class="row-actions">
-                                    <Link
-                                        v-if="isDeletedView"
-                                        :href="`/memories/deleted/${memory.id}`"
-                                        class="open-button"
-                                    >
-                                        Open <span>→</span>
-                                    </Link>
-
-                                    <template v-else-if="currentView === 'completed'">
-                                        <button type="button" class="reopen-button" @click="reopenTask(memory.id)">
-                                            ↩ Reopen
-                                        </button>
-                                        <button type="button" class="more-button" title="Move to BIN" @click="moveToBin(memory.id)">
-                                            ⋮
-                                        </button>
-                                    </template>
-
-                                    <button
-                                        v-else
-                                        type="button"
-                                        class="more-button"
-                                        title="Move to BIN"
-                                        @click="moveToBin(memory.id)"
-                                    >
+                                <template v-else-if="currentView === 'completed'">
+                                    <button type="button" class="reopen-button" @click="reopenTask(memory.id)">
+                                        ↩ Reopen
+                                    </button>
+                                    <button type="button" class="more-button" title="Move to BIN" @click="moveToBin(memory.id)">
                                         ⋮
                                     </button>
-                                </div>
+                                </template>
+
+                                <button
+                                    v-else
+                                    type="button"
+                                    class="more-button"
+                                    title="Move to BIN"
+                                    @click="moveToBin(memory.id)"
+                                >
+                                    ⋮
+                                </button>
                             </div>
                         </article>
                     </section>
@@ -445,10 +423,6 @@ const formatTime = (date: string | null) => {
 .memory-copy h2{margin-top:5px;overflow:hidden;text-overflow:ellipsis;color:#1f2a44;font-size:12px;font-weight:800;line-height:1.35}
 .description{margin-top:3px;display:-webkit-box;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:1;color:#657189;font-size:10px;line-height:1.45}
 .date-line{display:flex;gap:12px;flex-wrap:wrap;margin-top:7px;color:#8d98aa;font-size:8px}.date-icon{margin-right:3px;color:#7c86a0}
-.row-side{display:flex;align-items:center;gap:16px}
-.row-meta{min-width:112px;display:flex;align-items:center;justify-content:flex-end;gap:10px;color:#7f899c;white-space:nowrap}
-.meta-date{font-size:9px;font-weight:750;color:#667187}
-.meta-time{font-size:9px;font-weight:650;color:#98a1b1}
 .row-actions{display:flex;align-items:center;gap:7px}.more-button,.reopen-button,.open-button{height:34px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #e0e4ea;border-radius:10px;background:#fff;color:#68748a;font-size:9px;font-weight:800;transition:.18s}
 .more-button{width:34px;font-size:17px}.reopen-button,.open-button{padding:0 11px}.open-button{background:#f6f7fb;color:#4f5c75}
 .more-button:hover,.reopen-button:hover,.open-button:hover{border-color:#ccd2dc;background:#f7f8fa;color:#273249}
@@ -481,7 +455,6 @@ const formatTime = (date: string | null) => {
 .quiet-card{background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(241,243,249,.96))}.quiet-card p{margin-top:7px;color:#7b8597;font-size:10px;line-height:1.6}.ask-apon{width:100%;height:38px;display:flex;align-items:center;justify-content:space-between;margin-top:14px;border:1px solid #e0e3eb;border-radius:12px;background:#fff;padding:0 12px;color:#5863d9;font-size:9px;font-weight:850}
 .empty-state{min-height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px dashed #d9dee7;border-radius:20px;background:rgba(255,255,255,.85);text-align:center}.empty-symbol{width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:15px;background:#f1f3f7;color:#6e7890;font-size:17px}.empty-state h2{margin-top:12px;color:#29354d;font-size:14px;font-weight:800}.empty-state p{max-width:350px;margin-top:5px;color:#8b95a7;font-size:10px;line-height:1.6}
 @media(max-width:1100px){.workspace{grid-template-columns:1fr}.side-column{position:static;grid-template-columns:1fr 1fr}.stat-grid{grid-template-columns:repeat(4,1fr)}}
-@media(max-width:900px){.row-meta{display:none}.row-side{gap:7px}}
 @media(max-width:720px){.page-intro{align-items:flex-start}.add-button{height:40px;padding:0 14px}.workspace{gap:13px}.memory-row{grid-template-columns:42px minmax(0,1fr) auto;gap:10px;min-height:78px;padding:12px}.type-tile{width:42px;height:42px;border-radius:13px;font-size:15px}.date-line{gap:7px}.side-column{grid-template-columns:1fr}.stat-grid{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:520px){.memory-v4{padding-top:0}.page-intro{display:block;margin-bottom:15px}.add-button{margin-top:14px}.intro-copy h1{font-size:30px}.filter-bar a{padding:8px 11px}.memory-row{grid-template-columns:38px minmax(0,1fr) auto;border-radius:16px}.type-tile{width:38px;height:38px}.description{display:none}.date-line span:last-child{display:none}.stat-grid{grid-template-columns:1fr 1fr}.reopen-button{padding:0 8px}}
 @media(prefers-reduced-motion:reduce){.add-button,.memory-row,.more-button,.reopen-button,.open-button{transition:none}}

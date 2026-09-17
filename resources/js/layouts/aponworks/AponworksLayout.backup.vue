@@ -46,8 +46,8 @@ const userInitial = computed(() => {
 
 const sidebarWidth = computed(() => {
     return sidebarCollapsed.value
-        ? 'lg:grid-cols-[84px_minmax(0,1fr)]'
-        : 'lg:grid-cols-[258px_minmax(0,1fr)]';
+        ? 'lg:grid-cols-[88px_minmax(0,1fr)]'
+        : 'lg:grid-cols-[250px_minmax(0,1fr)]';
 });
 
 const showToast = (
@@ -143,15 +143,15 @@ const primaryNavigation = [
         href: '/dashboard',
         key: 'home',
     },
-    {
-        label: 'My Day',
-        icon: '◉',
-        href: '/dashboard#my-day',
-        key: 'my-day',
-    },
 ];
 
 const viewNavigation = [
+    {
+        label: 'All',
+        icon: '▦',
+        href: '/memories',
+        key: 'all',
+    },
     {
         label: 'Tasks',
         icon: '✓',
@@ -169,6 +169,12 @@ const viewNavigation = [
         icon: '◫',
         href: '/diary',
         key: 'diary',
+    },
+    {
+        label: 'Completed',
+        icon: '✓',
+        href: '/tasks/completed',
+        key: 'completed',
     },
 ];
 
@@ -249,19 +255,19 @@ onBeforeUnmount(() => {
 
 <template>
     <div
-        class="apon-v4-shell min-h-screen text-slate-900"
+        class="min-h-screen bg-[#f6f7f9] text-slate-900"
         @click.self="closeFloatingMenus"
     >
         <!-- DESKTOP APP -->
         <div
             :class="[
-                'mx-auto grid min-h-screen max-w-[1920px] transition-all duration-300',
+                'mx-auto grid min-h-screen max-w-[1800px] transition-all duration-300',
                 sidebarWidth,
             ]"
         >
             <!-- SIDEBAR -->
             <aside
-                class="apon-v4-sidebar sticky top-0 hidden h-screen border-r backdrop-blur-xl lg:flex lg:flex-col"
+                class="sticky top-0 hidden h-screen border-r border-slate-200/70 bg-white/95 backdrop-blur-xl lg:flex lg:flex-col"
             >
                 <!-- BRAND -->
                 <div
@@ -272,7 +278,7 @@ onBeforeUnmount(() => {
                         class="flex min-w-0 items-center gap-3"
                     >
                         <div
-                            class="apon-brand-mark flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-sm font-black text-white shadow-lg"
+                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-sm font-black text-white shadow-lg shadow-slate-900/10"
                         >
                             A
                         </div>
@@ -507,53 +513,48 @@ onBeforeUnmount(() => {
                         </div>
                     </div>
 
-                    <!-- MORE -->
+                    <!-- BIN -->
                     <div class="mt-6">
                         <Transition name="fade">
                             <p
                                 v-if="!sidebarCollapsed"
                                 class="mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400"
                             >
-                                More
+                                Bin
                             </p>
                         </Transition>
 
-                        <div v-if="!sidebarCollapsed" class="space-y-1">
+                        <div
+                            v-if="!sidebarCollapsed"
+                            class="rounded-2xl border border-slate-100 bg-slate-50/70 p-2"
+                        >
                             <Link
-                                href="/memories"
-                                class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 transition hover:bg-slate-50 hover:text-slate-950"
-                                :class="activePage === 'all' ? 'bg-slate-100 text-slate-950' : ''"
+                                v-for="item in binNavigation"
+                                :key="item.key"
+                                :href="item.href"
+                                :class="[
+                                    'block rounded-xl px-3 py-2 text-xs font-medium transition',
+                                    activePage ===
+                                    item.key
+                                        ? 'bg-white text-slate-950 shadow-sm'
+                                        : 'text-slate-500 hover:bg-white hover:text-slate-900',
+                                ]"
                             >
-                                <span class="flex h-7 w-7 items-center justify-center rounded-lg">▦</span>
-                                <span>All Items</span>
+                                Deleted {{ item.label }}
                             </Link>
-
-                            <Link
-                                href="/tasks/completed"
-                                class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 transition hover:bg-slate-50 hover:text-slate-950"
-                                :class="activePage === 'completed' ? 'bg-slate-100 text-slate-950' : ''"
-                            >
-                                <span class="flex h-7 w-7 items-center justify-center rounded-lg">✓</span>
-                                <span>Completed</span>
-                            </Link>
-
-                            <button
-                                type="button"
-                                class="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-slate-500 transition hover:bg-slate-50 hover:text-slate-950"
-                                @click="router.visit('/bin/tasks')"
-                            >
-                                <span class="flex h-7 w-7 items-center justify-center rounded-lg">⌫</span>
-                                <span>Bin</span>
-                            </button>
                         </div>
 
                         <button
                             v-else
                             type="button"
                             class="flex w-full justify-center rounded-xl px-3 py-2.5 text-slate-400 transition hover:bg-slate-50 hover:text-slate-900"
-                            @click="router.visit('/memories')"
+                            @click="
+                                router.visit(
+                                    '/bin/tasks',
+                                )
+                            "
                         >
-                            •••
+                            🗑
                         </button>
                     </div>
                 </nav>
@@ -607,7 +608,7 @@ onBeforeUnmount(() => {
             >
                 <!-- TOP BAR -->
                 <header
-                    class="apon-v4-topbar sticky top-0 z-30 border-b backdrop-blur-2xl"
+                    class="sticky top-0 z-30 border-b border-slate-200/70 bg-[#f6f7f9]/90 backdrop-blur-xl"
                 >
                     <div
                         class="flex h-20 items-center gap-3 px-4 md:px-6 xl:px-8"
@@ -638,12 +639,12 @@ onBeforeUnmount(() => {
                                 v-model="askApon"
                                 type="text"
                                 placeholder="Ask APON anything..."
-                                class="apon-v4-search h-11 w-full rounded-2xl border pl-11 pr-16 text-sm text-slate-800 outline-none transition placeholder:text-slate-400"
+                                class="h-11 w-full rounded-2xl border border-slate-200 bg-white pl-11 pr-16 text-sm text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-slate-300 focus:ring-4 focus:ring-slate-200/50"
                             />
 
                             <button
                                 type="submit"
-                                class="apon-v4-ask absolute right-2 top-1/2 -translate-y-1/2 rounded-xl px-3 py-1.5 text-[11px] font-bold text-white transition"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl bg-slate-950 px-3 py-1.5 text-[11px] font-bold text-white transition hover:bg-slate-800"
                             >
                                 Ask
                             </button>
@@ -655,7 +656,7 @@ onBeforeUnmount(() => {
                             <!-- APON BUTTON -->
                             <button
                                 type="button"
-                                class="apon-assistant-button hidden h-10 items-center gap-2 rounded-xl px-3 text-xs font-bold shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:flex"
+                                class="hidden h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:flex"
                                 @click="
                                     aponPanelOpen = true
                                 "
@@ -1265,10 +1266,10 @@ onBeforeUnmount(() => {
                         </Link>
 
                         <Link
-                            href="/dashboard#my-day"
+                            href="/memories"
                             class="block rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
                         >
-                            ◉ My Day
+                            ▦ All
                         </Link>
 
                         <Link
@@ -1290,29 +1291,6 @@ onBeforeUnmount(() => {
                             class="block rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
                         >
                             ◫ Diary
-                        </Link>
-
-                        <div class="my-3 border-t border-slate-100"></div>
-
-                        <Link
-                            href="/memories"
-                            class="block rounded-xl px-4 py-3 text-sm font-medium text-slate-500 hover:bg-slate-50"
-                        >
-                            ▦ All Items
-                        </Link>
-
-                        <Link
-                            href="/tasks/completed"
-                            class="block rounded-xl px-4 py-3 text-sm font-medium text-slate-500 hover:bg-slate-50"
-                        >
-                            ✓ Completed
-                        </Link>
-
-                        <Link
-                            href="/bin/tasks"
-                            class="block rounded-xl px-4 py-3 text-sm font-medium text-slate-500 hover:bg-slate-50"
-                        >
-                            ⌫ Bin
                         </Link>
 
                         <button
@@ -1553,60 +1531,6 @@ onBeforeUnmount(() => {
     border-radius: 999px;
     background: #d7dce2;
 }
-
-
-/* APONWORKS V2 visual identity */
-.apon-brand-mark {
-    background:
-        radial-gradient(circle at 28% 18%, rgba(255,255,255,.45), transparent 31%),
-        linear-gradient(145deg, #7784ee 0%, #6265df 52%, #8c7ee7 100%);
-    box-shadow: 0 12px 28px rgba(99, 102, 241, .22);
-}
-
-.apon-assistant-button {
-    border: 1px solid rgba(99, 102, 241, .16);
-    background:
-        linear-gradient(135deg, rgba(238,242,255,.95), rgba(255,255,255,.98));
-    color: #4338ca;
-}
-
-.apon-assistant-button:hover {
-    border-color: rgba(99, 102, 241, .28);
-    background: linear-gradient(135deg, #eef2ff, #faf5ff);
-}
-
-
-/* APONWORKS PREMIUM V4 — WHITE + ASH */
-.apon-v4-shell {
-    background:
-        radial-gradient(circle at 73% 2%, rgba(129,140,248,.075), transparent 25rem),
-        linear-gradient(135deg,#f9fafc 0%,#f0f2f6 50%,#f7f8fb 100%);
-}
-.apon-v4-sidebar {
-    border-color: rgba(218,222,231,.82);
-    background: linear-gradient(180deg,rgba(255,255,255,.99),rgba(248,249,251,.97));
-    box-shadow: 12px 0 34px rgba(55,65,81,.035);
-}
-.apon-v4-topbar {
-    border-color: rgba(218,222,231,.72);
-    background: rgba(249,250,252,.84);
-    box-shadow: 0 5px 24px rgba(55,65,81,.025);
-}
-.apon-v4-search {
-    border-color: rgba(217,221,230,.9);
-    background: rgba(255,255,255,.9);
-    box-shadow: 0 8px 24px rgba(51,65,85,.035);
-}
-.apon-v4-search:focus {
-    border-color: rgba(129,140,248,.42);
-    background:#fff;
-    box-shadow:0 0 0 4px rgba(129,140,248,.09),0 10px 28px rgba(51,65,85,.045);
-}
-.apon-v4-ask {
-    background:linear-gradient(135deg,#6571e8,#7667e8);
-    box-shadow:0 8px 20px rgba(99,102,241,.18);
-}
-.apon-v4-ask:hover { background:linear-gradient(135deg,#5965dc,#695ada); }
 
 /* Respect users who disable motion */
 @media (prefers-reduced-motion: reduce) {
